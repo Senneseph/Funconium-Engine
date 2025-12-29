@@ -22,13 +22,13 @@ ControlMapping* register_controls(ControlMapping* control_mappings, size_t count
 // Function to draw the screen
 void draw_screen(void* scene_data) {
     // Placeholder for drawing the screen
-    printf("Drawing the screen...\n");
+    // Removed excessive console output
 }
 
 // Function to play sound
 void play_sound(Sound sound) {
     // Placeholder for playing sound
-    printf("Playing sound...\n");
+    // Removed excessive console output
 }
 
 // Function to initialize the engine

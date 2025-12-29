@@ -1,17 +1,16 @@
 CC = gcc
-CFLAGS = -I. -Wall -Wextra -std=c99
-LDFLAGS = 
+CFLAGS = -I. -Wall -Wextra -std=c99 -DUSE_SDL -I/usr/include/SDL2 -D_REENTRANT
+LDFLAGS = -lSDL2
 
-SRC_DIRS = src/core src/scheduler src/rendering src/compositing src/demo
-SRC_FILES = $(wildcard $(SRC_DIRS)/*.c)
-OBJ_FILES = $(SRC_FILES:.c=.o)
+SRC_FILES = src/demo/asset_loader.c src/demo/demo.c src/demo/main.c
+OBJ_FILES = src/demo/asset_loader.o src/demo/demo.o src/demo/main.o
 
-TARGET = funconium_demo
+TARGET = dragon_raiders_demo
 
 all: $(TARGET)
 
 $(TARGET): $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $(OBJ_FILES) $(LDFLAGS) -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

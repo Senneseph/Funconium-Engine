@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "demo.h"
 #include "asset_loader.h"
+
+#ifdef USE_SDL
+#include <SDL2/SDL.h>
+#endif
 
 // Callback function for quitting the demo
 void quit_demo() {
@@ -47,8 +52,85 @@ int main() {
     }
 
     // Main demo loop
-    printf("Demo is running. Press ESC to quit.\n");
-    while (1) {
+    printf("Dragon Raiders Demo is running. Press ESC to quit.\n");
+
+    #ifdef USE_SDL
+    // Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        fprintf(stderr, "Failed to initialize SDL: %s\n", SDL_GetError());
+        free_asset(dark_knight_asset);
+        free_asset(pieta_asset);
+        shutdown_engine(engine_state);
+        return 1;
+    }
+
+    // Create a window
+    SDL_Window* window = SDL_CreateWindow("Dragon Raiders Demo",
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          800, 600,
+                                          SDL_WINDOW_SHOWN);
+    if (window == NULL) {
+        fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
+        SDL_Quit();
+        free_asset(dark_knight_asset);
+        free_asset(pieta_asset);
+        shutdown_engine(engine_state);
+        return 1;
+    }
+
+    // Create a renderer
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        fprintf(stderr, "Failed to create renderer: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        free_asset(dark_knight_asset);
+        free_asset(pieta_asset);
+        shutdown_engine(engine_state);
+        return 1;
+    }
+
+    // Main loop flag
+    bool running = true;
+    SDL_Event event;
+
+    while (running) {
+        // Handle events
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    running = false;
+                }
+            }
+        }
+
+        // Clear the screen
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Draw something simple
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_Rect rect = {350, 250, 100, 100};
+        SDL_RenderFillRect(renderer, &rect);
+
+        // Present the renderer
+        SDL_RenderPresent(renderer);
+
+        // Simulate a frame delay
+        SDL_Delay(16); // 16ms for ~60 FPS
+    }
+
+    // Clean up SDL
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    #else
+    // Fallback to console output if SDL is not available
+    bool running = true;
+    while (running) {
         // Draw the screen
         void* scene_data = NULL; // Placeholder for scene data
         draw_screen(scene_data);
@@ -64,6 +146,7 @@ int main() {
         usleep(16000); // 16ms for ~60 FPS
         #endif
     }
+    #endif
 
     // Shutdown the engine
     shutdown_engine(engine_state);
