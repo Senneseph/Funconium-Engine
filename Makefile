@@ -9,7 +9,7 @@ EM_LDFLAGS = -s USE_SDL=2 -s SDL2_IMAGE_FORMATS='["png"]' -s SDL2_MIXER_FORMATS=
 # GCC settings for Linux build
 GCC = gcc
 GCC_CFLAGS = -I. -Wall -Wextra -std=c99 -DUSE_SDL -I/usr/include/SDL2 -D_REENTRANT
-GCC_LDFLAGS = -lSDL2
+GCC_LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
 # Source files for WASM build
 WASM_SRC_FILES = src/demo/wasm/asset_loader.c src/demo/wasm/demo.c src/demo/wasm/main.c
