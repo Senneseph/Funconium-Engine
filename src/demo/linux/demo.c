@@ -1,6 +1,7 @@
 #include "demo.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "asset_loader.h"
 
 // Function to register controls
 ControlMapping* register_controls(ControlMapping* control_mappings, size_t count) {

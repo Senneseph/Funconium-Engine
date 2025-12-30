@@ -3,6 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Function to duplicate a string
+char* strdup(const char* str) {
+    size_t len = strlen(str) + 1;
+    char* dup = malloc(len);
+    if (dup != NULL) {
+        memcpy(dup, str, len);
+    }
+    return dup;
+}
+
 // Function to load an asset from a file
 Asset load_asset(const char* file_path) {
     Asset asset = {NULL, 0, NULL};
@@ -29,7 +39,7 @@ Asset load_asset(const char* file_path) {
 
     // Read the file data
     size_t bytes_read = fread(data, 1, file_size, file);
-    if (bytes_read != file_size) {
+    if (bytes_read != (size_t)file_size) {
         fprintf(stderr, "Failed to read file data.\n");
         free(data);
         fclose(file);

@@ -1,24 +1,53 @@
-CC = gcc
-CFLAGS = -I. -Wall -Wextra -std=c99 -DUSE_SDL -I/usr/include/SDL2 -D_REENTRANT
-LDFLAGS = -lSDL2
+# Makefile for Funkonium Engine Demo
+# Supports both WASM and Linux builds
 
-SRC_FILES = src/demo/asset_loader.c src/demo/demo.c src/demo/main.c
-OBJ_FILES = src/demo/asset_loader.o src/demo/demo.o src/demo/main.o
+# Emscripten settings for WASM build
+EMCC = emcc
+EM_CFLAGS = -I. -Wall -Wextra -std=gnu99 -s USE_SDL=2 -s SDL2_IMAGE_FORMATS='["png"]' -s SDL2_MIXER_FORMATS='["wav"]'
+EM_LDFLAGS = -s USE_SDL=2 -s SDL2_IMAGE_FORMATS='["png"]' -s SDL2_MIXER_FORMATS='["wav"]'
 
-TARGET = dragon_raiders_demo
+# GCC settings for Linux build
+GCC = gcc
+GCC_CFLAGS = -I. -Wall -Wextra -std=c99 -DUSE_SDL -I/usr/include/SDL2 -D_REENTRANT
+GCC_LDFLAGS = -lSDL2
 
-all: $(TARGET)
+# Source files for WASM build
+WASM_SRC_FILES = src/demo/wasm/asset_loader.c src/demo/wasm/demo.c src/demo/wasm/main.c
+WASM_OBJ_FILES = src/demo/wasm/asset_loader.o src/demo/wasm/demo.o src/demo/wasm/main.o
 
-$(TARGET): $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $@ $(OBJ_FILES) $(LDFLAGS) -lm
+# Source files for Linux build
+LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c
+LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# Targets
+WASM_TARGET = demo.html
+LINUX_TARGET = dragon_raiders_demo
 
+# Default target
+all: $(LINUX_TARGET)
+
+# Linux build
+$(LINUX_TARGET): $(LINUX_OBJ_FILES)
+	$(GCC) $(GCC_CFLAGS) -o $@ $(LINUX_OBJ_FILES) $(GCC_LDFLAGS) -lm
+
+# WASM build
+wasm: $(WASM_OBJ_FILES)
+	$(EMCC) $(EM_CFLAGS) -o $(WASM_TARGET) $(WASM_OBJ_FILES) $(EM_LDFLAGS) -lm
+
+# Object file rules for Linux
+src/demo/linux/%.o: src/demo/linux/%.c
+	$(GCC) $(GCC_CFLAGS) -c $< -o $@
+
+# Object file rules for WASM
+src/demo/wasm/%.o: src/demo/wasm/%.c
+	$(EMCC) $(EM_CFLAGS) -c $< -o $@
+
+# Clean target
 clean:
-	rm -f $(OBJ_FILES) $(TARGET)
+	rm -f $(LINUX_OBJ_FILES) $(WASM_OBJ_FILES) $(LINUX_TARGET) $(WASM_TARGET)
 
-run: $(TARGET)
-	./$(TARGET)
+# Run target for Linux
+run:
+	./$(LINUX_TARGET)
 
-.PHONY: all clean run
+.PHONY: all clean run wasm

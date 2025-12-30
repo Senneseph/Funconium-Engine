@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include "demo.h"
 #include "asset_loader.h"
 
@@ -66,10 +67,10 @@ int main() {
 
     // Create a window
     SDL_Window* window = SDL_CreateWindow("Dragon Raiders Demo",
-                                          SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED,
-                                          800, 600,
-                                          SDL_WINDOW_SHOWN);
+                                           SDL_WINDOWPOS_CENTERED,
+                                           SDL_WINDOWPOS_CENTERED,
+                                           800, 600,
+                                           SDL_WINDOW_SHOWN);
     if (window == NULL) {
         fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
         SDL_Quit();
