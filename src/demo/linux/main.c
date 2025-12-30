@@ -7,6 +7,7 @@
 #include "demo_core.h"
 #include "sdl_wrapper.h"
 #include "logger.h"
+#include "timing.h"
 
 #ifdef USE_SDL
 #include <SDL2/SDL.h>
@@ -53,7 +54,6 @@ int main() {
     }
 
     log_message("Assets loaded successfully.");
-    printf("Assets loaded successfully.\n");
 
     // Register controls
     ControlMapping control_mappings[] = {
@@ -79,6 +79,7 @@ int main() {
     }
 
     // Main demo loop
+    log_message("Dragon Raiders Demo is running. Press ESC to quit.\n");
     printf("Dragon Raiders Demo is running. Press ESC to quit.\n");
 
     #ifdef USE_SDL
@@ -94,6 +95,7 @@ int main() {
     void* core_engine_state = initialize_core_engine(&config);
     if (core_engine_state == NULL) {
         fprintf(stderr, "Failed to initialize the core engine.\n");
+        log_message("Failed to initialize the core engine.");
         free_asset(dark_knight_asset);
         free_asset(pieta_asset);
         shutdown_engine(engine_state);
@@ -104,6 +106,7 @@ int main() {
     void* sdl_state = initialize_sdl(&config);
     if (sdl_state == NULL) {
         fprintf(stderr, "Failed to initialize SDL.\n");
+        log_message("Failed to initialize SDL.");
         free_asset(dark_knight_asset);
         free_asset(pieta_asset);
         shutdown_core_engine(core_engine_state);
@@ -116,7 +119,7 @@ int main() {
         handle_sdl_input_events(sdl_state);
         update_game_state(core_engine_state);
         render_sdl(sdl_state);
-        SDL_Delay(16); // 16ms for ~60 FPS
+        sleep_ms(TARGET_FRAME_TIME_MS); // Use target frame time for ~60 FPS
     }
 
     // Clean up SDL
@@ -126,6 +129,16 @@ int main() {
     #else
     // Fallback to console output if SDL is not available
     bool running = true;
+    
+    // Detect display refresh rate for optimal timing
+    DisplayInfo display_info;
+    if (!detect_display_refresh_rate(&display_info)) {
+        log_message("Failed to detect display refresh rate, using default timing");
+    }
+    
+    // Calculate optimal frame delay based on detected refresh rate
+    uint32_t frame_delay_ms = calculate_frame_delay_ms(display_info.refresh_rate_hz);
+    
     while (running) {
         // Draw the screen
         void* scene_data = NULL; // Placeholder for scene data
@@ -135,12 +148,8 @@ int main() {
         Sound sound = {NULL, 0, 0, 0}; // Placeholder for sound
         play_sound(sound);
 
-        // Simulate a frame delay
-        #ifdef _WIN32
-        Sleep(16); // 16ms for ~60 FPS
-        #else
-        usleep(16000); // 16ms for ~60 FPS
-        #endif
+        // Use platform-independent sleep with calculated delay
+        sleep_ms(frame_delay_ms);
     }
     #endif
 

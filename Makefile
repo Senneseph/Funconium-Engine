@@ -1,4 +1,4 @@
-# Makefile for Funkonium Engine Demo
+# Makefile for Funconium Engine Demo
 # Supports both WASM and Linux builds
 
 # Emscripten settings for WASM build
@@ -16,8 +16,8 @@ WASM_SRC_FILES = src/demo/wasm/asset_loader.c src/demo/wasm/demo.c src/demo/wasm
 WASM_OBJ_FILES = src/demo/wasm/asset_loader.o src/demo/wasm/demo.o src/demo/wasm/main.o
 
 # Source files for Linux build
-LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c src/demo/core/demo_core.c src/demo/linux/sdl_wrapper.c src/demo/linux/logger.c
-LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o src/demo/core/demo_core.o src/demo/linux/sdl_wrapper.o src/demo/linux/logger.o
+LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c src/demo/core/demo_core.c src/demo/linux/sdl_wrapper.c src/demo/linux/logger.c src/demo/linux/timing.c
+LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o src/demo/core/demo_core.o src/demo/linux/sdl_wrapper.o src/demo/linux/logger.o src/demo/linux/timing.o
 
 # Targets
 WASM_TARGET = demo.html
