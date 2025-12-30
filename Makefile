@@ -8,7 +8,7 @@ EM_LDFLAGS = -s USE_SDL=2 -s SDL2_IMAGE_FORMATS='["png"]' -s SDL2_MIXER_FORMATS=
 
 # GCC settings for Linux build
 GCC = gcc
-GCC_CFLAGS = -I. -Wall -Wextra -std=c99 -DUSE_SDL -I/usr/include/SDL2 -D_REENTRANT
+GCC_CFLAGS = -I. -I./src/demo/core -Wall -Wextra -std=c99 -DUSE_SDL -I/usr/include/SDL2 -D_REENTRANT
 GCC_LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
 # Source files for WASM build
@@ -16,8 +16,8 @@ WASM_SRC_FILES = src/demo/wasm/asset_loader.c src/demo/wasm/demo.c src/demo/wasm
 WASM_OBJ_FILES = src/demo/wasm/asset_loader.o src/demo/wasm/demo.o src/demo/wasm/main.o
 
 # Source files for Linux build
-LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c
-LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o
+LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c src/demo/core/demo_core.c src/demo/linux/sdl_wrapper.c
+LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o src/demo/core/demo_core.o src/demo/linux/sdl_wrapper.o
 
 # Targets
 WASM_TARGET = demo.html
@@ -36,6 +36,10 @@ wasm: $(WASM_OBJ_FILES)
 
 # Object file rules for Linux
 src/demo/linux/%.o: src/demo/linux/%.c
+	$(GCC) $(GCC_CFLAGS) -c $< -o $@
+
+# Object file rules for core
+src/demo/core/%.o: src/demo/core/%.c
 	$(GCC) $(GCC_CFLAGS) -c $< -o $@
 
 # Object file rules for WASM
