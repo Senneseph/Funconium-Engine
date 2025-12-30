@@ -16,8 +16,8 @@ WASM_SRC_FILES = src/demo/wasm/asset_loader.c src/demo/wasm/demo.c src/demo/wasm
 WASM_OBJ_FILES = src/demo/wasm/asset_loader.o src/demo/wasm/demo.o src/demo/wasm/main.o
 
 # Source files for Linux build
-LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c src/demo/core/demo_core.c src/demo/linux/sdl_wrapper.c
-LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o src/demo/core/demo_core.o src/demo/linux/sdl_wrapper.o
+LINUX_SRC_FILES = src/demo/linux/asset_loader.c src/demo/linux/demo.c src/demo/linux/main.c src/demo/core/demo_core.c src/demo/linux/sdl_wrapper.c src/demo/linux/logger.c
+LINUX_OBJ_FILES = src/demo/linux/asset_loader.o src/demo/linux/demo.o src/demo/linux/main.o src/demo/core/demo_core.o src/demo/linux/sdl_wrapper.o src/demo/linux/logger.o
 
 # Targets
 WASM_TARGET = demo.html

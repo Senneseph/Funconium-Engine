@@ -6,6 +6,7 @@
 #include "asset_loader.h"
 #include "demo_core.h"
 #include "sdl_wrapper.h"
+#include "logger.h"
 
 #ifdef USE_SDL
 #include <SDL2/SDL.h>
@@ -18,6 +19,17 @@ void quit_demo() {
 }
 
 int main() {
+    // Initialize the logger
+    LoggerConfig logger_config = {
+        .log_file_path = "demo.log",
+        .max_log_size = 1024 * 1024 // 1MB
+    };
+    if (!initialize_logger(&logger_config)) {
+        fprintf(stderr, "Failed to initialize logger.\n");
+        return 1;
+    }
+
+    log_message("Starting the Funconium Engine Demo...");
     printf("Starting the Funconium Engine Demo...\n");
 
     // Initialize the engine
@@ -29,15 +41,18 @@ int main() {
     }
 
     // Load assets
+    log_message("Loading assets...");
     Asset dark_knight_asset = load_asset("resources/models/dark-knight-spiked-black-armored-warrior.zip");
     Asset pieta_asset = load_asset("resources/models/pieta-cinematic-wings.zip");
 
     if (dark_knight_asset.data == NULL || pieta_asset.data == NULL) {
+        log_message("Failed to load assets.");
         fprintf(stderr, "Failed to load assets.\n");
         shutdown_engine(engine_state);
         return 1;
     }
 
+    log_message("Assets loaded successfully.");
     printf("Assets loaded successfully.\n");
 
     // Register controls
@@ -48,6 +63,15 @@ int main() {
     ControlMapping* registered_controls = register_controls(control_mappings, control_count);
     if (registered_controls == NULL) {
         fprintf(stderr, "Failed to register controls.\n");
+        free_asset(dark_knight_asset);
+        free_asset(pieta_asset);
+        shutdown_engine(engine_state);
+        return 1;
+    }
+
+    // Detect hardware and prepare resources
+    if (!detect_hardware_and_prepare(engine_config)) {
+        fprintf(stderr, "Failed to detect hardware and prepare resources.\n");
         free_asset(dark_knight_asset);
         free_asset(pieta_asset);
         shutdown_engine(engine_state);
@@ -126,6 +150,12 @@ int main() {
     // Free the assets
     free_asset(dark_knight_asset);
     free_asset(pieta_asset);
+
+    // Shutdown the logger
+    shutdown_logger();
+
+    log_message("Demo shutdown complete.");
+    printf("Demo shutdown complete.\n");
 
     return 0;
 }
