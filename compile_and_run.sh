@@ -14,7 +14,7 @@ if [ "$PLATFORM" = "wasm" ]; then
 fi
 
 # Navigate to the project directory
-cd /home/jsmille/Projects/Funkonium\ Engine
+cd /home/jsmille/Projects/Funconium\ Engine
 
 # Compile the demo based on the platform
 if [ "$PLATFORM" = "linux" ]; then

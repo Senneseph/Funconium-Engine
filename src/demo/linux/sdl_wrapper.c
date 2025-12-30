@@ -1,4 +1,5 @@
 #include "sdl_wrapper.h"
+#include "layout_engine.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -144,38 +145,62 @@ void render_sdl(void* engine_state) {
     GameState* state = (GameState*)engine_state;
     SDL_Renderer* renderer = (SDL_Renderer*)state->renderer;
 
+    // Get the window dimensions
+    int window_width, window_height;
+    SDL_GetRendererOutputSize(renderer, &window_width, &window_height);
+
     // Clear the screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Load a font and render text
+    // Create a layout manager
+    LayoutManager* layout = create_layout_manager(window_width, window_height);
+    if (layout == NULL) {
+        fprintf(stderr, "Failed to create layout manager\n");
+        SDL_RenderPresent(renderer);
+        return;
+    }
+
+    // Create a text widget for the message
+    Widget* message_widget = create_text_widget(
+        "Dragon Raiders, powered by the Funconium Engine",
+        (SDL_Color){255, 255, 255, 255},
+        36,
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    );
+    if (message_widget == NULL) {
+        fprintf(stderr, "Failed to create text widget\n");
+        free_layout_manager(layout);
+        SDL_RenderPresent(renderer);
+        return;
+    }
+
+    // Center the text widget
     TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 36);
     if (font == NULL) {
         fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
         font = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 36);
     }
-    if (font == NULL) {
-        fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
-    } else {
-        SDL_Color textColor = {255, 255, 255, 255};
-        SDL_Surface* textSurface = TTF_RenderText_Blended(font, "Dragon Raiders, powered by the Funconium Engine", textColor);
-        if (textSurface == NULL) {
-            fprintf(stderr, "Failed to render text: %s\n", TTF_GetError());
-        } else {
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (font != NULL) {
+        SDL_Surface* textSurface = TTF_RenderText_Blended(font, "Dragon Raiders, powered by the Funconium Engine", (SDL_Color){255, 255, 255, 255});
+        if (textSurface != NULL) {
+            message_widget->width = textSurface->w;
+            message_widget->height = textSurface->h;
+            message_widget->x = (window_width - textSurface->w) / 2;
+            message_widget->y = (window_height - textSurface->h) / 2;
             SDL_FreeSurface(textSurface);
-            if (texture == NULL) {
-                fprintf(stderr, "Failed to create texture from text: %s\n", SDL_GetError());
-            } else {
-                int textWidth = textSurface->w;
-                int textHeight = textSurface->h;
-                SDL_Rect dest_rect = {(800 - textWidth) / 2, (600 - textHeight) / 2, textWidth, textHeight};
-                SDL_RenderCopy(renderer, texture, NULL, &dest_rect);
-                SDL_DestroyTexture(texture);
-            }
         }
         TTF_CloseFont(font);
     }
+
+    // Add the widget to the layout manager
+    add_widget_to_layout(layout, message_widget);
+
+    // Render the layout
+    render_layout(layout, renderer);
+
+    // Free the layout manager
+    free_layout_manager(layout);
 
     // Present the renderer
     SDL_RenderPresent(renderer);
