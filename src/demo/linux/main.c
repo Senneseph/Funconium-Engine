@@ -91,6 +91,20 @@ int main() {
         .vsync = true
     };
 
+    // Configure the demo engine
+    EngineConfig demo_config = {
+        .defer_window_creation = false,
+        .use_fullscreen = false,
+        .use_exclusive_fullscreen = false,
+        .window_width = 800,
+        .window_height = 600,
+        .font_size = 12,
+        .show_fps = true,
+        .show_frame_time = true,
+        .fps_position = FPS_POSITION_TOP_RIGHT,
+        .fps_font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+    };
+
     // Initialize the core engine
     void* core_engine_state = initialize_core_engine(&config);
     if (core_engine_state == NULL) {
@@ -103,7 +117,7 @@ int main() {
     }
 
     // Initialize SDL
-    void* sdl_state = initialize_sdl(&config);
+    void* sdl_state = initialize_sdl(&config, &demo_config);
     if (sdl_state == NULL) {
         fprintf(stderr, "Failed to initialize SDL.\n");
         log_message("Failed to initialize SDL.");

@@ -1,6 +1,7 @@
 #ifndef LAYOUT_ENGINE_H
 #define LAYOUT_ENGINE_H
 
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
@@ -30,8 +31,11 @@ typedef struct Widget {
 typedef struct {
     char* text;
     SDL_Color color;
+    SDL_Color outline_color;
     int font_size;
     char* font_path;
+    bool has_outline;
+    int outline_thickness;
 } TextWidgetData;
 
 // Button Widget Data
@@ -64,6 +68,9 @@ void free_layout_manager(LayoutManager* layout);
 
 // Function to create a text widget
 Widget* create_text_widget(const char* text, SDL_Color color, int font_size, const char* font_path);
+
+// Function to create a text widget with outline
+Widget* create_text_widget_with_outline(const char* text, SDL_Color color, SDL_Color outline_color, int font_size, const char* font_path, int outline_thickness);
 
 // Function to create a button widget
 Widget* create_button_widget(const char* text, SDL_Color color, SDL_Color background_color, int font_size, const char* font_path, void (*on_click)(void));

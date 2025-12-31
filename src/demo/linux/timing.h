@@ -26,4 +26,7 @@ void sleep_ms(uint32_t milliseconds);
 // Function to calculate optimal frame delay based on actual refresh rate
 uint32_t calculate_frame_delay_ms(uint32_t refresh_rate_hz);
 
+// Function to get current time in nanoseconds
+uint64_t get_current_time_ns();
+
 #endif // TIMING_H

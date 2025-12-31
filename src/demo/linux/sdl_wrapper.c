@@ -1,5 +1,7 @@
 #include "sdl_wrapper.h"
 #include "layout_engine.h"
+#include "demo.h"
+#include "timing.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,7 +12,7 @@
 #endif
 
 // Function to initialize SDL
-void* initialize_sdl(CoreEngineConfig* config) {
+void* initialize_sdl(CoreEngineConfig* config, EngineConfig* demo_config) {
     #ifdef USE_SDL
     printf("Initializing SDL...\n");
     // Initialize SDL
@@ -98,6 +100,7 @@ void* initialize_sdl(CoreEngineConfig* config) {
     game_state->renderer = renderer;
     game_state->window = window;
     game_state->running = true;
+    game_state->demo_config = *demo_config;
 
     printf("SDL initialized successfully.\n");
     return game_state;
@@ -136,6 +139,88 @@ void handle_sdl_input_events(void* engine_state) {
             }
         }
     }
+    #endif
+}
+
+// Function to create FPS display widget
+Widget* create_fps_widget(GameState* state) {
+    #ifdef USE_SDL
+    if (!state->demo_config.show_fps && !state->demo_config.show_frame_time) {
+        return NULL;
+    }
+
+    // Calculate FPS and frame time
+    calculate_fps();
+    
+    // Format the FPS text
+    char fps_text[100];
+    if (state->demo_config.show_fps && state->demo_config.show_frame_time) {
+        snprintf(fps_text, sizeof(fps_text), "FPS: %.1f | Frame Time: %.2fms", get_current_fps(), get_current_frame_time());
+    } else if (state->demo_config.show_fps) {
+        snprintf(fps_text, sizeof(fps_text), "FPS: %.1f", get_current_fps());
+    } else {
+        snprintf(fps_text, sizeof(fps_text), "Frame Time: %.2fms", get_current_frame_time());
+    }
+
+    // Create the text widget with outline
+    Widget* fps_widget = create_text_widget_with_outline(
+        fps_text,
+        (SDL_Color){0, 255, 0, 255}, // Green text
+        (SDL_Color){0, 0, 0, 255},   // Black outline
+        state->demo_config.font_size,
+        state->demo_config.fps_font_path,
+        2  // Outline thickness
+    );
+    
+    if (fps_widget == NULL) {
+        fprintf(stderr, "Failed to create FPS widget\n");
+        return NULL;
+    }
+
+    // Position the widget based on the selected position
+    TTF_Font* font = TTF_OpenFont(state->demo_config.fps_font_path, state->demo_config.font_size);
+    if (font == NULL) {
+        fprintf(stderr, "Failed to load FPS font: %s\n", TTF_GetError());
+        font = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeMono.ttf", state->demo_config.font_size);
+    }
+    
+    if (font != NULL) {
+        SDL_Surface* textSurface = TTF_RenderText_Blended(font, fps_text, (SDL_Color){0, 255, 0, 255});
+        if (textSurface != NULL) {
+            fps_widget->width = textSurface->w;
+            fps_widget->height = textSurface->h;
+            
+            // Position based on settings
+            int window_width, window_height;
+            SDL_GetRendererOutputSize(state->renderer, &window_width, &window_height);
+            
+            switch (state->demo_config.fps_position) {
+                case FPS_POSITION_TOP_LEFT:
+                    fps_widget->x = 10;
+                    fps_widget->y = 10;
+                    break;
+                case FPS_POSITION_TOP_RIGHT:
+                    fps_widget->x = window_width - textSurface->w - 10;
+                    fps_widget->y = 10;
+                    break;
+                case FPS_POSITION_BOTTOM_LEFT:
+                    fps_widget->x = 10;
+                    fps_widget->y = window_height - textSurface->h - 10;
+                    break;
+                case FPS_POSITION_BOTTOM_RIGHT:
+                    fps_widget->x = window_width - textSurface->w - 10;
+                    fps_widget->y = window_height - textSurface->h - 10;
+                    break;
+            }
+            
+            SDL_FreeSurface(textSurface);
+        }
+        TTF_CloseFont(font);
+    }
+    
+    return fps_widget;
+    #else
+    return NULL;
     #endif
 }
 
@@ -195,6 +280,12 @@ void render_sdl(void* engine_state) {
 
     // Add the widget to the layout manager
     add_widget_to_layout(layout, message_widget);
+
+    // Create and add FPS widget if enabled
+    Widget* fps_widget = create_fps_widget(state);
+    if (fps_widget != NULL) {
+        add_widget_to_layout(layout, fps_widget);
+    }
 
     // Render the layout
     render_layout(layout, renderer);

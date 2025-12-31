@@ -18,6 +18,14 @@ typedef struct {
     int sample_rate;
 } Sound;
 
+// Define the FPS display position enum
+typedef enum {
+    FPS_POSITION_TOP_LEFT,
+    FPS_POSITION_TOP_RIGHT,
+    FPS_POSITION_BOTTOM_LEFT,
+    FPS_POSITION_BOTTOM_RIGHT
+} FPSPosition;
+
 // Define the EngineConfig structure
 typedef struct {
     bool defer_window_creation;
@@ -26,6 +34,10 @@ typedef struct {
     int window_width;
     int window_height;
     int font_size;
+    bool show_fps;
+    bool show_frame_time;
+    FPSPosition fps_position;
+    char* fps_font_path;
 } EngineConfig;
 
 // Function to register controls
@@ -36,6 +48,12 @@ void draw_screen(void* scene_data);
 
 // Function to play sound
 void play_sound(Sound sound);
+
+// Function to get current FPS
+float get_current_fps();
+
+// Function to get current frame time
+float get_current_frame_time();
 
 // Function to initialize the engine
 void* initialize_engine(void* engine_config);

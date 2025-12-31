@@ -52,3 +52,19 @@ uint32_t calculate_frame_delay_ms(uint32_t refresh_rate_hz) {
     // Use 90% of frame time to leave room for processing
     return (uint32_t)(frame_time_ms * 0.9);
 }
+
+// Function to get current time in nanoseconds
+uint64_t get_current_time_ns() {
+    #ifdef _WIN32
+    // Windows implementation using QueryPerformanceCounter
+    LARGE_INTEGER frequency, counter;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&counter);
+    return (uint64_t)((counter.QuadPart * 1000000000) / frequency.QuadPart);
+    #else
+    // POSIX implementation using clock_gettime
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000 + (uint64_t)ts.tv_nsec;
+    #endif
+}

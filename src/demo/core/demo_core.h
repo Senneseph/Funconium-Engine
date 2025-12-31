@@ -2,6 +2,7 @@
 #define DEMO_CORE_H
 
 #include <stdbool.h>
+#include "../linux/demo.h"
 
 // Structure to hold core engine configuration
 typedef struct {
@@ -16,6 +17,7 @@ typedef struct {
     void* renderer;
     void* window;
     bool running;
+    EngineConfig demo_config;
 } GameState;
 
 // Function to initialize the core engine

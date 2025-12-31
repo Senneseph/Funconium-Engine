@@ -4,7 +4,7 @@
 #include "demo_core.h"
 
 // Function to initialize SDL
-void* initialize_sdl(CoreEngineConfig* config);
+void* initialize_sdl(CoreEngineConfig* config, EngineConfig* demo_config);
 
 // Function to shutdown SDL
 void shutdown_sdl(void* engine_state);
