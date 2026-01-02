@@ -2,7 +2,17 @@
 #define DEMO_CORE_H
 
 #include <stdbool.h>
+
+// Platform-specific includes
+#if defined(_WIN32)
+#include "../win/demo.h"
+#elif defined(__linux__)
 #include "../linux/demo.h"
+#elif defined(__EMSCRIPTEN__)
+#include "../wasm/demo.h"
+#else
+#include "../linux/demo.h" // Default to Linux
+#endif
 
 // Structure to hold core engine configuration
 typedef struct {
